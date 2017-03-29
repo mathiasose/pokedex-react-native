@@ -3,36 +3,51 @@ import {
   AppRegistry,
   StyleSheet,
   Text,
-  View
+  View,
+  ListView
 } from 'react-native';
 
 import resources from './api';
+
+const Pokemon = ({pokemon}) => (
+  <Text>{pokemon.name}</Text>
+);
+
+const PokeList = ({pokemons}) => {
+  const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+  const dataSource = ds.cloneWithRows(pokemons || []);
+
+  return (
+    <ListView dataSource={dataSource} renderRow={(pokemon) => <Pokemon pokemon={pokemon}/>} />
+  );
+}
 
 export default class pokedex extends Component {
   constructor(props){
     super(props);
     this.state = {
-        pokemons: undefined
+      pokeJson: undefined
     }
   }
+
   componentDidMount() {
     resources.pokemonList()
-        .then((pokeJson) => {
-            this.setState({pokemons: pokeJson})
-        })
-        .catch((err) => console.error(err))
+      .then((pokeJson) => {
+        this.setState({pokeJson: pokeJson})
+      })
+      .catch((err) => console.error(err))
   }
+
   render() {
-      return (
-         <View style={styles.container}>
-           <Text style={styles.welcome}>
-             Pokedex Native!
-           </Text>
-           <Text style={styles.instructions}>
-             {this.state.pokemons && JSON.stringify(this.state.pokemons)}
-           </Text>
-         </View>
-       );
+    return (
+      <View style={styles.container}>
+        <Text style={styles.welcome}>
+          Pokedex Native!
+        </Text>
+
+        <PokeList pokemons={this.state.pokeJson && this.state.pokeJson.results}/>
+      </View>
+    );
   }
 }
 
