@@ -1,9 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
-
 import React, { Component } from 'react';
 import {
   AppRegistry,
@@ -12,22 +6,33 @@ import {
   View
 } from 'react-native';
 
+import resources from './api';
+
 export default class pokedex extends Component {
+  constructor(props){
+    super(props);
+    this.state = {
+        pokemons: undefined
+    }
+  }
+  componentDidMount() {
+    resources.pokemonList()
+        .then((pokeJson) => {
+            this.setState({pokemons: pokeJson})
+        })
+        .catch((err) => console.error(err))
+  }
   render() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.android.js
-        </Text>
-        <Text style={styles.instructions}>
-          Double tap R on your keyboard to reload,{'\n'}
-          Shake or press menu button for dev menu
-        </Text>
-      </View>
-    );
+      return (
+         <View style={styles.container}>
+           <Text style={styles.welcome}>
+             Pokedex Native!
+           </Text>
+           <Text style={styles.instructions}>
+             {this.state.pokemons && JSON.stringify(this.state.pokemons)}
+           </Text>
+         </View>
+       );
   }
 }
 
