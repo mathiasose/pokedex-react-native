@@ -4,21 +4,52 @@ import {
   StyleSheet,
   Text,
   View,
-  ListView
+  ListView,
+  Image
 } from 'react-native';
 
 import resources from './api';
 
-const Pokemon = ({pokemon}) => (
-  <Text>{pokemon.name}</Text>
-);
+class Pokemon extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      pokemonJson: undefined,
+    }
+  }
+
+  componentDidMount() {
+    fetch(this.props.url)
+      .then((response) => response.json())
+      .then((pokemonJson) => {
+        this.setState({pokemonJson: pokemonJson})
+      })
+      .catch((err) => console.error(err))
+  }
+
+  render() {
+    if (this.state.pokemonJson) {
+      return (
+        <View style={{flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center',}}>
+          <Image style={{ width: 40, height: 40, backgroundColor: 'transparent',}}
+                 source={{uri: this.state.pokemonJson.sprites.front_default}} />
+          <Image style={{ width: 40, height: 40, backgroundColor: 'transparent',}}
+                 source={{uri: this.state.pokemonJson.sprites.front_shiny}} />
+          <Text>{this.state.pokemonJson.name}</Text>
+        </View>
+      )
+    } else {
+      return null;
+    }
+  }
+};
 
 const PokeList = ({pokemons}) => {
   const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
   const dataSource = ds.cloneWithRows(pokemons || []);
 
   return (
-    <ListView dataSource={dataSource} renderRow={(pokemon) => <Pokemon pokemon={pokemon}/>} />
+    <ListView dataSource={dataSource} renderRow={(pokemon) => <Pokemon url={pokemon.url} />} />
   );
 }
 
